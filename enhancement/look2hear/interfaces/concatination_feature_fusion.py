@@ -12,13 +12,13 @@ class ConcatinationFeatureFusion(torch.nn.Module):
         self.linear = torch.nn.Linear(upstream_feature_space + donwnstream_feature_space, 
                                 donwnstream_feature_space)
 
-    def forward(self, upstream_x, downstream_x):
+    def forward(self, x_upstream, x_downstream):
         """
         Fuse the two features by concatenating them and applying a linear layer.
         Args:
-            x1: The first feature tensor.
-            x2: The second feature tensor.
+            x_upstream: The first feature tensor.
+            x_downstream: The second feature tensor.
         """
-        z = torch.concatenate((upstream_x, downstream_x), dim=1)
+        z = torch.concatenate((x_upstream, x_downstream), dim=1)
         return self.linear(z)
     
