@@ -72,7 +72,7 @@ class GRUProjector(nn.Module):
         # Linear projection + activation
         out = self.proj(gru_out)  # [B, 256, 25]
         alpha = out[..., :24]
-        beta = out[..., -1]
-        alpha = torch.nn.functional.softmax(alpha, dim=2)
+        beta = F.tanh(out[..., -1])
+        alpha = F.softmax(alpha, dim=2)
         
         return alpha.reshape(b, 1, 24, t), beta.reshape(b, 1, t)

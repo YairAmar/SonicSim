@@ -38,11 +38,10 @@ class LinearFiLMFeatureFusion(torch.nn.Module):
 
         alpha = z[..., :self.downstream_feature_space]
         alpha = F.softmax(alpha, dim=2)
-        beta = z[..., self.downstream_feature_space:]
+        beta = F.tanh(z[..., self.downstream_feature_space:])
+        modulated_features = x_downstream * alpha + beta
         
         if self.residual:
-            modulated_features = x_downstream * alpha + beta + x_downstream
-        else:
-            modulated_features = x_downstream * alpha + beta
+            modulated_features += x_downstream
             
         return modulated_features
