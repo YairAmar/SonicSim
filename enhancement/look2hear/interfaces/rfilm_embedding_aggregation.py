@@ -6,8 +6,11 @@ import torch.nn.functional as F
 class RFiLMEmbeddingAggregation(torch.nn.Module):
     def __init__(self, layer_wise=True):
         super().__init__()
-        self.gru = GRUProjector()
-        self.conv_backbone = SeparableConvReduceHeight(channels=1024)
+        if layer_wise:
+            self.gru = GRUProjector()
+            self.conv_backbone = SeparableConvReduceHeight(channels=1024)
+        else:
+            raise NotImplementedError("Only layer-wise RFiLM is implemented.")
 
     def forward(self, x):
         z = torch.nn.functional.interpolate(x, size=256, mode='linear', align_corners=False)
