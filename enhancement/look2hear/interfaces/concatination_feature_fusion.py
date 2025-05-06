@@ -1,6 +1,4 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 
 class ConcatinationFeatureFusion(torch.nn.Module):
@@ -11,7 +9,7 @@ class ConcatinationFeatureFusion(torch.nn.Module):
                  upstream_feature_space: int = 1024, 
                  donwnstream_feature_space: int = 256):
         super().__init__()
-        self.linear = nn.Linear(upstream_feature_space + donwnstream_feature_space, 
+        self.linear = torch.nn.Linear(upstream_feature_space + donwnstream_feature_space, 
                                 donwnstream_feature_space)
 
     def forward(self, upstream_x, downstream_x):
