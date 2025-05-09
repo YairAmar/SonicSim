@@ -4,20 +4,21 @@ import torch.nn.functional as F
 
 
 class RFiLMEmbeddingAggregation(torch.nn.Module):
-    def __init__(self, layer_wise=True):
+    def __init__(self, layer_wise=True, downstream_time_steps=256):
         super().__init__()
         if layer_wise:
             self.gru = GRUProjector()
             self.conv_backbone = SeparableConvReduceHeight(channels=1024)
         else:
             raise NotImplementedError("Only layer-wise RFiLM is implemented.")
+        self.downstream_time_steps = downstream_time_steps
 
     def forward(self, x):
-        z = torch.nn.functional.interpolate(x, size=256, mode='linear', align_corners=False)
-        z = self.conv_backbone(z)
+        x = torch.nn.functional.interpolate(x, size=(self.downstream_time_steps, x.shape[-1]), mode='bilinear', align_corners=False)
+        z = self.conv_backbone(x.permute(0, 3, 1, 2).contiguous()).squeeze()  # [B, 1024, 24, 256]
         alpha, beta = self.gru(z)
 
-        return (torch.sum((x * alpha), dim=2) + beta)
+        return (torch.sum((x * alpha.permute(0,2,3,1)), dim=1) + beta.permute(0,2,1)).permute(0, 2, 1).contiguous()
 
 
 class SeparableConvReduceHeight(nn.Module):
@@ -35,9 +36,9 @@ class SeparableConvReduceHeight(nn.Module):
                 nn.Conv2d(
                     in_channels=channels,
                     out_channels=channels,
-                    kernel_size=(k, 12),  # Vertical only
-                    stride=(s, 6),
-                    padding=(pad, 0),
+                    kernel_size=(k, 5),  # Vertical only
+                    stride=(s, 1),
+                    padding=(pad, 2),
                     groups=channels,  # Depthwise
                     bias=False
                 ),
@@ -51,7 +52,7 @@ class SeparableConvReduceHeight(nn.Module):
 
 
 class GRUProjector(nn.Module):
-    def __init__(self, input_dim=1024, hidden_dim=512, output_dim=25, num_layers=2):
+    def __init__(self, input_dim=1024, hidden_dim=512, output_dim=26, num_layers=2):
         super().__init__()
         self.gru = nn.GRU(
             input_size=input_dim,
@@ -62,6 +63,7 @@ class GRUProjector(nn.Module):
         )
         self.proj = nn.Linear(hidden_dim, output_dim)
         self.activation = nn.ReLU()
+        self.ouput_dim = output_dim
 
     def forward(self, x):
         # x: [B, 1024, 1, 256] → squeeze → [B, 1024, 256]
@@ -74,8 +76,8 @@ class GRUProjector(nn.Module):
        
         # Linear projection + activation
         out = self.proj(gru_out)  # [B, 256, 25]
-        alpha = out[..., :24]
+        alpha = out[..., :self.ouput_dim - 1]
         beta = F.tanh(out[..., -1])
         alpha = F.softmax(alpha, dim=2)
         
-        return alpha.reshape(b, 1, 24, t), beta.reshape(b, 1, t)
+        return alpha.reshape(b, 1, self.ouput_dim - 1, t), beta.reshape(b, 1, t)

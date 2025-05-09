@@ -1,0 +1,7 @@
+from .linear_film_feature_fusion import LinearFiLMFeatureFusion
+from .gru_film_feature_fusion import GRUFiLMFeatureFusion
+from .concatination_feature_fusion import ConcatinationFeatureFusion
+from .mean_embedding_aggregation import MeanAggr
+from .last_layer_embedding_aggregation import LastLayerAggr
+from .rfilm_embedding_aggregation import RFiLMEmbeddingAggregation
+from .feature_fusion_interface import FeatureFusionInterface

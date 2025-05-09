@@ -20,5 +20,6 @@ class ConcatinationFeatureFusion(torch.nn.Module):
             x_downstream: The second feature tensor.
         """
         z = torch.concatenate((x_upstream, x_downstream), dim=1)
-        return self.linear(z)
+        z = self.linear(z.permute(0, 2, 1))
+        return z.permute(0, 2, 1)
     

@@ -1,11 +1,11 @@
 import torch
 
-from .concatination_feature_fusion import ConcatinationFeatureFusion
-from .gru_film_feature_fusion import GRUFiLMFeatureFusion
-from .linear_film_feature_fusion import LinearFiLMFeatureFusion
-from .mean_embedding_aggregation import MeanAggr
-from .last_layer_embedding_aggregation import LastLayerAggr
-from .rfilm_embedding_aggregation import RFiLMEmbeddingAggregation
+from ..interfaces.concatination_feature_fusion import ConcatinationFeatureFusion
+from ..interfaces.gru_film_feature_fusion import GRUFiLMFeatureFusion
+from ..interfaces.linear_film_feature_fusion import LinearFiLMFeatureFusion
+from ..interfaces.mean_embedding_aggregation import MeanAggr
+from ..interfaces.last_layer_embedding_aggregation import LastLayerAggr
+from ..interfaces.rfilm_embedding_aggregation import RFiLMEmbeddingAggregation
 
 
 class FeatureFusionInterface(torch.nn.Module):
@@ -17,6 +17,7 @@ class FeatureFusionInterface(torch.nn.Module):
                  fusion_type: str = 'concat',
                  upstream_feature_space: int = 1024, 
                  downstream_feature_space: int = 256,
+                 downstream_timesteps: int = 256,
                  fusion_residual: bool = True,
                  fusion_use_conv: bool = True,
                  aggregation_layer_wise: bool = True,
@@ -32,11 +33,11 @@ class FeatureFusionInterface(torch.nn.Module):
         self.aggregation_type = aggregation_type
 
         if aggregation_type == 'mean':
-            self.aggregation = MeanAggr()
+            self.aggregation = MeanAggr(downstream_time_steps=downstream_timesteps)
         elif aggregation_type == 'last_layer':
-            self.aggregation = LastLayerAggr()
+            self.aggregation = LastLayerAggr(downstream_timsteps=downstream_timesteps)
         elif aggregation_type == 'rfilm':
-            self.aggregation = RFiLMEmbeddingAggregation(layer_wise=aggregation_layer_wise)
+            self.aggregation = RFiLMEmbeddingAggregation(layer_wise=aggregation_layer_wise, downstream_time_steps=downstream_timesteps)
         else:
             raise ValueError(f"Unknown aggregation type: {aggregation_type}")
         

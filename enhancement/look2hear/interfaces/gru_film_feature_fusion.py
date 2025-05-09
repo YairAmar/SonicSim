@@ -28,8 +28,12 @@ class GRUFiLMFeatureFusion(nn.Module):
 
         # Optional convolutional layers
         if self.use_conv:
-            self.conv1 = nn.Conv2d(upstream_feature_space, upstream_feature_space, kernel_size=(3, 3), padding=(1, 1))
-            self.conv2 = nn.Conv2d(upstream_feature_space, upstream_feature_space, kernel_size=(3, 3), padding=(1, 1))
+            self.conv1 = nn.Conv1d(upstream_feature_space, 
+                                   upstream_feature_space, 
+                                   kernel_size=3, padding=1)
+            self.conv2 = nn.Conv1d(upstream_feature_space, 
+                                   upstream_feature_space, 
+                                   kernel_size=3, padding=1)
             self.conv_activation = nn.ReLU()
 
         # GRU layers
@@ -56,8 +60,8 @@ class GRUFiLMFeatureFusion(nn.Module):
             x_upstream = self.conv_activation(self.conv2(x_upstream))
 
         # Prepare input for GRU
-        b, c, h, w = x_upstream.shape
-        x_upstream = x_upstream.view(b, c, -1).permute(0, 2, 1)  # [B, T, C]
+        b, c, t = x_upstream.shape
+        x_upstream = x_upstream.permute(0, 2, 1)  # [B, T, C]
 
         # GRU forward pass
         gru_out, _ = self.gru(x_upstream)  # [B, T, downstream_feature_space]
@@ -69,10 +73,9 @@ class GRUFiLMFeatureFusion(nn.Module):
         beta = torch.tanh(z[..., self.downstream_feature_space:])
 
         # Apply FiLM modulation
-        x_downstream = x_downstream.view(b, c, -1)  # [B, C, T]
         modulated_features = x_downstream * alpha.permute(0, 2, 1) + beta.permute(0, 2, 1)
 
         if self.residual:
             modulated_features += x_downstream
 
-        return modulated_features.view(b, c, h, w)
+        return modulated_features

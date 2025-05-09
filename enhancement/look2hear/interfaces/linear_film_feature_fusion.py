@@ -32,14 +32,14 @@ class LinearFiLMFeatureFusion(torch.nn.Module):
             x_upstream: The first feature tensor.
             x_downstream: The second feature tensor.
         """
-        z = self.linear1(x_upstream)
+        z = self.linear1(x_upstream.permute(0, 2, 1))
         z = F.relu(z)
         z = self.linear2(z)
 
         alpha = z[..., :self.downstream_feature_space]
         alpha = F.softmax(alpha, dim=2)
         beta = F.tanh(z[..., self.downstream_feature_space:])
-        modulated_features = x_downstream * alpha + beta
+        modulated_features = x_downstream * alpha.permute(0,2,1) + beta.permute(0,2,1)
         
         if self.residual:
             modulated_features += x_downstream
