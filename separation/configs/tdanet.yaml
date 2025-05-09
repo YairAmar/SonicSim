@@ -74,11 +74,11 @@ checkpoint:
   filename: '{epoch}-{val_loss:.4f}'
 
 logger:
-  _target_: pytorch_lightning.loggers.WandbLogger
+  _target_: pytorch_lightning.loggers.TensorBoardLogger
   name: ${exp.name}
   save_dir: ${exp.dir}/${exp.name}/logs
-  offline: false
-  project: MovingData
+  # offline: false
+  # project: MovingData
 
 trainer:
   _target_: pytorch_lightning.Trainer
