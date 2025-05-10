@@ -39,6 +39,7 @@ model:
   downstream_timesteps: 253
   upstream_feature_space: 1024
   downstream_feature_space: 8224 
+  upstream_model: hubert
 
 optimizer:
   _target_: torch.optim.Adam

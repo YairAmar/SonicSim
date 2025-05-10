@@ -4,7 +4,8 @@ import torch.nn as nn
 import torch.nn.init as init
 import numpy as np
 from .base_model import BaseModel
-from look2hear.upstream_encoder.wavlm import WavLMWrapper
+# from look2hear.upstream_encoders.wavlm import WavLMWrapper
+from look2hear.upstream_encoders import UpstreamEncoder
 from look2hear.interfaces.feature_fusion_interface import FeatureFusionInterface
 
 
@@ -236,10 +237,9 @@ class FullSubnetWavLM(BaseModel):
         self.num_groups_in_drop_band = num_groups_in_drop_band
 
         if use_upstream_model:
-            if upstream_model_path:
-                pass
-            else:
-                self.upstream_model = WavLMWrapper()
+            self.upstream_model = UpstreamEncoder(
+                upstream_model=upstream_model, 
+                model_path=upstream_model_path)
         
         self.upstream_interface = FeatureFusionInterface(
             aggregation_type=aggregation_type,

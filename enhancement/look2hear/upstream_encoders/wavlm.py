@@ -1,7 +1,9 @@
 import torch
-from transformers import WavLMModel, WavLMConfig
+from transformers import WavLMModel
+from .abs_upstream import AbstractUpstreamEncoder
 
-class WavLMWrapper(torch.nn.Module):
+
+class WavLMWrapper(AbstractUpstreamEncoder):
     def __init__(self, model_path: str = None):
         """
         Wrapper class for using a WavLM model from Hugging Face.
@@ -11,16 +13,14 @@ class WavLMWrapper(torch.nn.Module):
                                         the model will be loaded from Hugging Face.
         """
         super(WavLMWrapper, self).__init__()
-        if model_path:
-            self.wavlm = WavLMModel.from_pretrained(model_path)
-        else:
-            self.wavlm = WavLMModel.from_pretrained("microsoft/wavlm-large")
+        model_path = model_path if model_path else "microsoft/wavlm-large"
+        self.model = WavLMModel.from_pretrained(model_path)
         
         # Freeze WavLM weights
-        for param in self.wavlm.parameters():
+        for param in self.model.parameters():
             param.requires_grad = False
 
-    def forward(self, audio_signal: torch.Tensor, sampling_rate: int = 16000):
+    def forward(self, x: torch.Tensor, sampling_rate: int = 16000):
         """
         Forward pass for the WavLM model.
         
@@ -33,7 +33,7 @@ class WavLMWrapper(torch.nn.Module):
         """
         with torch.no_grad():
             # Pass the audio signal through the WavLM model
-            outputs = self.wavlm(audio_signal, output_hidden_states=True)
+            outputs = self.model(x, output_hidden_states=True)
         
         # Extract hidden states from all transformer layers
         hidden_states = outputs.hidden_states  # Tuple of (layer_0, layer_1, ..., layer_23)

@@ -1,7 +1,7 @@
 import torch
 import hydra
 from look2hear.interfaces import FeatureFusionInterface
-from look2hear.upstream_encoder import WavLMWrapper
+from look2hear.upstream_encoders import WavLMWrapper
 from look2hear.models.fullsubnet_wavlm import FullSubnetWavLM
 if __name__ == "__main__":
     # Example usage
@@ -23,4 +23,4 @@ if __name__ == "__main__":
     model: torch.nn.Module = hydra.utils.instantiate(cfg.model)
     output = model(x)  # Using the same tensor for both upstream and downstream for testing
     # Print the shape of the output
-    print(output.shape)  # Should be (7, 640, 256) for downstream feature
+    print(output)  # Should be (7, 640, 256) for downstream feature
