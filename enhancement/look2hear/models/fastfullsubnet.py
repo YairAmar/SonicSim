@@ -421,10 +421,6 @@ class FastFullSubnet(BaseModel):
 
             mu_list.append(mu)
 
-            # print("input", input[:, :, idx].min(), input[:, :, idx].max(), input[:, :, idx].mean())
-            # print(f"alp {idx}: ", alp)
-            # print(f"mu {idx}: {mu[128, 0]}")
-
         mu = torch.stack(mu_list, dim=-1)  # [B, 1, T]
         output = input / (mu + eps)
 
@@ -474,9 +470,6 @@ class FastFullSubnet(BaseModel):
 
         cum_mean = cum_mean.reshape(batch_size, 1, n_frames)  # [B, 1, T]
 
-        # print(initial_mu[0, 0, :50])
-        # print("-"*60)
-        # print(cum_mean[0, 0, :50])
         cum_mean[:, :, :sample_length_in_training] = initial_mu
 
         return input / (cum_mean + eps)

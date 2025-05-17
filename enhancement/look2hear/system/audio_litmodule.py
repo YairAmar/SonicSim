@@ -51,7 +51,6 @@ class AudioLightningModule(pl.LightningModule):
         
         # Save lightning"s AttributeDict under self.hparams
         self.default_monitor = "val_loss"
-        # self.print(self.audio_model)
         self.validation_step_outputs = []
         self.test_step_outputs = []
         
@@ -68,7 +67,6 @@ class AudioLightningModule(pl.LightningModule):
         mixtures, targets = batch
         est_sources = self(mixtures)
         loss = self.loss_func(est_sources, targets)
-        # print(loss)
 
         self.log(
             "train_loss",
@@ -85,7 +83,6 @@ class AudioLightningModule(pl.LightningModule):
     def validation_step(self, batch, batch_nb):
         # cal val loss
         mixtures, targets = batch
-        # print(mixtures.shape)
         est_sources = self(mixtures)
         loss = self.metrics(est_sources, targets)
         

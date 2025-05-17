@@ -23,4 +23,6 @@ if __name__ == "__main__":
     model: torch.nn.Module = hydra.utils.instantiate(cfg.model)
     output = model(x)  # Using the same tensor for both upstream and downstream for testing
     # Print the shape of the output
-    print(output)  # Should be (7, 640, 256) for downstream feature
+    print(output[0].shape)  # Should be (7, 640, 256) for downstream feature
+    print(output[1].shape)  # Should be (7, 640, 256) for downstream feature
+    print(output[2].shape)  # Should be (7, 640, 256) for downstream feature

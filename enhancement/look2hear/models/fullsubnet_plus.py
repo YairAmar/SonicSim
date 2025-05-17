@@ -450,16 +450,6 @@ class TCNBlock(nn.Module):
         self.prelu2 = nn.PReLU()
         self.norm2 = nn.GroupNorm(1, hidden_channel, eps=1e-8)
         self.sconv = nn.Conv1d(hidden_channel, out_channels, 1)
-        # self.tcn_block = nn.Sequential(
-        #     nn.Conv1d(in_channels, hidden_channel, 1),
-        #     nn.PReLU(),
-        #     nn.GroupNorm(1, hidden_channel, eps=1e-8),
-        #     nn.Conv1d(hidden_channel, hidden_channel, kernel_size=kernel_size, stride=1,
-        #               groups=hidden_channel, padding=padding, dilation=dilation, bias=True),
-        #     nn.PReLU(),
-        #     nn.GroupNorm(1, hidden_channel, eps=1e-8),
-        #     nn.Conv1d(hidden_channel, out_channels, 1)
-        # )
 
         self.causal = causal
         self.padding = padding
@@ -1009,10 +999,6 @@ class FullSubNet_Plus(BaseModel):
 
             mu_list.append(mu)
 
-            # print("input", input[:, :, idx].min(), input[:, :, idx].max(), input[:, :, idx].mean())
-            # print(f"alp {idx}: ", alp)
-            # print(f"mu {idx}: {mu[128, 0]}")
-
         mu = torch.stack(mu_list, dim=-1)  # [B, 1, T]
         output = input / (mu + eps)
 
@@ -1062,9 +1048,6 @@ class FullSubNet_Plus(BaseModel):
 
         cum_mean = cum_mean.reshape(batch_size, 1, n_frames)  # [B, 1, T]
 
-        # print(initial_mu[0, 0, :50])
-        # print("-"*60)
-        # print(cum_mean[0, 0, :50])
         cum_mean[:, :, :sample_length_in_training] = initial_mu
 
         return input / (cum_mean + eps)

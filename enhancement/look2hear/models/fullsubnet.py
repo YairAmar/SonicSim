@@ -353,10 +353,6 @@ class FullSubnet(BaseModel):
 
             mu_list.append(mu)
 
-            # print("input", input[:, :, idx].min(), input[:, :, idx].max(), input[:, :, idx].mean())
-            # print(f"alp {idx}: ", alp)
-            # print(f"mu {idx}: {mu[128, 0]}")
-
         mu = torch.stack(mu_list, dim=-1)  # [B, 1, T]
         output = input / (mu + eps)
 

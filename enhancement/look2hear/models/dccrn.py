@@ -158,7 +158,6 @@ class DCCRN(BaseModel):
         
         for idx, layer in enumerate(self.encoder):
             out = layer(out)
-        #    print('encoder', out.size())
             encoder_out.append(out)
         
         batch_size, channels, dims, lengths = out.size()
@@ -188,7 +187,7 @@ class DCCRN(BaseModel):
             out = complex_cat([out,encoder_out[-1 - idx]],1)
             out = self.decoder[idx](out)
             out = out[...,1:]
-        #    print('decoder', out.size())
+            
         mask_real = out[:,0]
         mask_imag = out[:,1] 
         mask_real = F.pad(mask_real, [0,0,1,0])

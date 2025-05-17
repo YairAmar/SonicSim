@@ -313,16 +313,18 @@ class NavieComplexLSTM(nn.Module):
             real, imag = inputs 
         elif isinstance(inputs, torch.Tensor):
             real, imag = torch.chunk(inputs,-1)
+            
         r2r_out = self.real_lstm(real)[0]
         r2i_out = self.imag_lstm(real)[0]
         i2r_out = self.real_lstm(imag)[0]
         i2i_out = self.imag_lstm(imag)[0]
         real_out = r2r_out - i2i_out
         imag_out = i2r_out + r2i_out 
+        
         if self.projection_dim is not None:
             real_out = self.r_trans(real_out)
             imag_out = self.i_trans(imag_out)
-        #print(real_out.shape,imag_out.shape)
+
         return [real_out, imag_out]
     
     def flatten_parameters(self):
